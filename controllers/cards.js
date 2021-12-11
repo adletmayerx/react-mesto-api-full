@@ -1,12 +1,11 @@
 const Card = require('../models/cards');
-
-const ValidationError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
+const { notFound, badRequest, server } = require('../errors/constants');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(server).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.deleteCard = (req, res) => {
@@ -18,8 +17,11 @@ module.exports.deleteCard = (req, res) => {
       res.send({ data: card });
     })
     .catch((e) => {
-      if (e instanceof NotFoundError) {
+      if (e.name === 'CastError') {
+        res.status(badRequest).send({ message: 'Переданы некорректные данные при создании карточки' });
+      } else if (e instanceof NotFoundError) {
         console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
+        res.status(notFound).send({ message: e.message });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
       }
@@ -32,16 +34,13 @@ module.exports.createCard = (req, res) => {
 
   Card.create({ name, link, owner })
     .then((card) => {
-      if (!card) {
-        throw new ValidationError('Переданы некорректные данные при создании карточки');
-      }
       res.send({ data: card });
     })
     .catch((e) => {
-      if (e instanceof ValidationError) {
-        console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
+      if (e.name === 'CastError') {
+        res.status(badRequest).send({ message: 'Переданы некорректные данные при создании карточки' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(server).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -59,10 +58,13 @@ module.exports.likeCard = (req, res) => {
       res.send(card);
     })
     .catch((e) => {
-      if (e instanceof NotFoundError) {
+      if (e.name === 'CastError') {
+        res.status(badRequest).send({ message: 'Переданы некорректные данные для постановки лайка' });
+      } else if (e instanceof NotFoundError) {
         console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
+        res.status(notFound).send({ message: e.message });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(server).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -79,10 +81,13 @@ module.exports.dislikeCard = (req, res) => {
     res.send(card);
   })
     .catch((e) => {
-      if (e instanceof NotFoundError) {
+      if (e.name === 'CastError') {
+        res.status(badRequest).send({ message: 'Переданы некорректные данные для снятия лайка' });
+      } else if (e instanceof NotFoundError) {
         console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
+        res.status(notFound).send({ message: e.message });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(server).send({ message: 'Произошла ошибка' });
       }
     });
 };

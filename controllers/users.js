@@ -1,12 +1,11 @@
 const User = require('../models/users');
-
-const ValidationError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
+const { notFound, badRequest, server } = require('../errors/constants');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(server).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.getUser = (req, res) => {
@@ -20,8 +19,9 @@ module.exports.getUser = (req, res) => {
     .catch((e) => {
       if (e instanceof NotFoundError) {
         console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
+        res.status(notFound).send({ message: e.message });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(server).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -31,16 +31,13 @@ module.exports.createUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => {
-      if (!user) {
-        throw new ValidationError('Переданы некорректные данные при создании пользователя');
-      }
       res.send({ data: user });
     })
     .catch((e) => {
-      if (e instanceof ValidationError) {
-        console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
+      if (e.name === 'CastError') {
+        res.status(badRequest).send({ message: 'Переданы некорректные данные при создании пользователя' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(server).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -59,10 +56,13 @@ module.exports.updateProfile = (req, res) => {
     res.send(user);
   })
     .catch((e) => {
-      if (e instanceof NotFoundError) {
+      if (e.name === 'CastError') {
+        res.status(badRequest).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      } else if (e instanceof NotFoundError) {
         console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
+        res.status(notFound).send({ message: e.message });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(server).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -82,10 +82,13 @@ module.exports.updateAvatar = (req, res) => {
       res.send(user);
     })
     .catch((e) => {
-      if (e instanceof NotFoundError) {
+      if (e.name === 'CastError') {
+        res.status(badRequest).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+      } else if (e instanceof NotFoundError) {
         console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
+        res.status(notFound).send({ message: e.message });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(server).send({ message: 'Произошла ошибка' });
       }
     });
 };
