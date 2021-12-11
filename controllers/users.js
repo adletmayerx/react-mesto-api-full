@@ -51,8 +51,8 @@ module.exports.updateProfile = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { name, about }, {
     new: true,
     runValidators: true,
-    upsert: true,
   }).then((user) => {
+    console.log(user);
     if (!user) {
       throw new NotFoundError('Пользователь с указанным _id не найден.');
     }
