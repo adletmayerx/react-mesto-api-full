@@ -1,5 +1,8 @@
 const User = require('../models/users');
 
+const ValidationError = require('../errors/ValidationError');
+const NotFoundError = require('../errors/NotFoundError');
+
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
@@ -8,16 +11,38 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUser = (req, res) => {
   User.findById(req.params.id)
-    .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь по указанному _id не найден');
+      }
+      res.send({ data: user });
+    })
+    .catch((e) => {
+      if (e instanceof NotFoundError) {
+        console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .then((user) => {
+      if (!user) {
+        throw new ValidationError('Переданы некорректные данные при создании пользователя');
+      }
+      res.send({ data: user });
+    })
+    .catch((e) => {
+      if (e instanceof ValidationError) {
+        console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 module.exports.updateProfile = (req, res) => {
@@ -27,9 +52,19 @@ module.exports.updateProfile = (req, res) => {
     new: true,
     runValidators: true,
     upsert: true,
+  }).then((user) => {
+    if (!user) {
+      throw new NotFoundError('Пользователь с указанным _id не найден.');
+    }
+    res.send(user);
   })
-    .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((e) => {
+      if (e instanceof NotFoundError) {
+        console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 module.exports.updateAvatar = (req, res) => {
@@ -40,6 +75,17 @@ module.exports.updateAvatar = (req, res) => {
     runValidators: true,
     upsert: true,
   })
-    .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь с указанным _id не найден.');
+      }
+      res.send(user);
+    })
+    .catch((e) => {
+      if (e instanceof NotFoundError) {
+        console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
