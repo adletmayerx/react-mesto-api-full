@@ -17,7 +17,9 @@ module.exports.getUser = (req, res) => {
       res.send({ data: user });
     })
     .catch((e) => {
-      if (e instanceof NotFoundError) {
+      if (e.name === 'CastError') {
+        res.status(badRequest).send({ message: 'Передан некорректный id' });
+      } else if (e.name === 'NotFoundError') {
         console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
         res.status(notFound).send({ message: e.message });
       } else {
@@ -34,8 +36,8 @@ module.exports.createUser = (req, res) => {
       res.send({ data: user });
     })
     .catch((e) => {
-      if (e.name === 'CastError') {
-        res.status(badRequest).send({ message: 'Переданы некорректные данные при создании пользователя' });
+      if (e.name === 'ValidationError') {
+        res.status(badRequest).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(server).send({ message: 'Произошла ошибка' });
       }
@@ -57,10 +59,12 @@ module.exports.updateProfile = (req, res) => {
   })
     .catch((e) => {
       if (e.name === 'CastError') {
-        res.status(badRequest).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-      } else if (e instanceof NotFoundError) {
+        res.status(badRequest).send({ message: e.message });
+      } else if (e.name === 'NotFoundError') {
         console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
         res.status(notFound).send({ message: e.message });
+      } else if (e.name === 'ValidationError') {
+        res.status(badRequest).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(server).send({ message: 'Произошла ошибка' });
       }
@@ -83,10 +87,12 @@ module.exports.updateAvatar = (req, res) => {
     })
     .catch((e) => {
       if (e.name === 'CastError') {
-        res.status(badRequest).send({ message: 'Переданы некорректные данные при обновлении аватара' });
-      } else if (e instanceof NotFoundError) {
+        res.status(badRequest).send({ message: e.message });
+      } else if (e.name === 'NotFoundError') {
         console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
         res.status(notFound).send({ message: e.message });
+      } else if (e.name === 'ValidationError') {
+        res.status(badRequest).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(server).send({ message: 'Произошла ошибка' });
       }

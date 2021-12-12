@@ -18,12 +18,14 @@ module.exports.deleteCard = (req, res) => {
     })
     .catch((e) => {
       if (e.name === 'CastError') {
-        res.status(badRequest).send({ message: 'Переданы некорректные данные при создании карточки' });
-      } else if (e instanceof NotFoundError) {
+        res.status(badRequest).send({ message: e.message });
+      } else if (e.name === 'NotFoundError') {
         console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
         res.status(notFound).send({ message: e.message });
+      } else if (e.name === 'ValidationError') {
+        res.status(badRequest).send({ message: 'Переданы некорректные данные' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(server).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -37,8 +39,8 @@ module.exports.createCard = (req, res) => {
       res.send({ data: card });
     })
     .catch((e) => {
-      if (e.name === 'CastError') {
-        res.status(badRequest).send({ message: 'Переданы некорректные данные при создании карточки' });
+      if (e.name === 'ValidationError') {
+        res.status(badRequest).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(server).send({ message: 'Произошла ошибка' });
       }
@@ -60,7 +62,7 @@ module.exports.likeCard = (req, res) => {
     .catch((e) => {
       if (e.name === 'CastError') {
         res.status(badRequest).send({ message: 'Переданы некорректные данные для постановки лайка' });
-      } else if (e instanceof NotFoundError) {
+      } else if (e.name === 'NotFoundError') {
         console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
         res.status(notFound).send({ message: e.message });
       } else {
@@ -83,7 +85,7 @@ module.exports.dislikeCard = (req, res) => {
     .catch((e) => {
       if (e.name === 'CastError') {
         res.status(badRequest).send({ message: 'Переданы некорректные данные для снятия лайка' });
-      } else if (e instanceof NotFoundError) {
+      } else if (e.name === 'NotFoundError') {
         console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
         res.status(notFound).send({ message: e.message });
       } else {

@@ -6,7 +6,7 @@ const {
 userRouter.get('/', getUsers);
 userRouter.get('/:id', getUser);
 userRouter.post('/', createUser);
-userRouter.patch('/users/me', updateProfile);
-userRouter.patch('/users/me/avatar', updateAvatar);
+userRouter.patch('/me', updateProfile);
+userRouter.patch('/me/avatar', updateAvatar);
 
 module.exports = userRouter;
