@@ -10,17 +10,14 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUser = (req, res) => {
   User.findById(req.params.id)
+    .orFail(new NotFoundError('Пользователь по указанному _id не найден'))
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Пользователь по указанному _id не найден');
-      }
       res.send({ data: user });
     })
     .catch((e) => {
       if (e.name === 'CastError') {
         res.status(badRequest).send({ message: 'Передан некорректный id' });
       } else if (e.name === 'NotFoundError') {
-        console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
         res.status(notFound).send({ message: e.message });
       } else {
         res.status(server).send({ message: 'Произошла ошибка' });
@@ -50,18 +47,15 @@ module.exports.updateProfile = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { name, about }, {
     new: true,
     runValidators: true,
-  }).then((user) => {
-    console.log(user);
-    if (!user) {
-      throw new NotFoundError('Пользователь с указанным _id не найден.');
-    }
-    res.send(user);
   })
+    .orFail(new NotFoundError('Пользователь по указанному _id не найден'))
+    .then((user) => {
+      res.send(user);
+    })
     .catch((e) => {
       if (e.name === 'CastError') {
-        res.status(badRequest).send({ message: e.message });
+        res.status(badRequest).send({ message: 'Передан некорректный id' });
       } else if (e.name === 'NotFoundError') {
-        console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
         res.status(notFound).send({ message: e.message });
       } else if (e.name === 'ValidationError') {
         res.status(badRequest).send({ message: 'Переданы некорректные данные' });
@@ -79,17 +73,14 @@ module.exports.updateAvatar = (req, res) => {
     runValidators: true,
     upsert: true,
   })
+    .orFail(new NotFoundError('Пользователь по указанному _id не найден'))
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Пользователь с указанным _id не найден.');
-      }
       res.send(user);
     })
     .catch((e) => {
       if (e.name === 'CastError') {
-        res.status(badRequest).send({ message: e.message });
+        res.status(badRequest).send({ message: 'Передан некорректный id' });
       } else if (e.name === 'NotFoundError') {
-        console.log(`Произошла ошибка ${e.name} c текстом ${e.message}, но мы её обработали`);
         res.status(notFound).send({ message: e.message });
       } else if (e.name === 'ValidationError') {
         res.status(badRequest).send({ message: 'Переданы некорректные данные' });

@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const NotFoundError = require('./errors/NotFoundError');
+const { badRequest } = require('./errors/constants');
 
 const { PORT = 3000, BASE_PATH } = process.env;
 const app = express();
@@ -21,8 +21,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {});
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.use('*', () => {
-  throw new NotFoundError('Запрашиваемый ресурс не найден');
+app.use('*', (req, res) => {
+  res.status(badRequest).send({ message: 'Запрашиваемый ресурс не найден' });
 });
 
 app.listen(PORT, () => {
