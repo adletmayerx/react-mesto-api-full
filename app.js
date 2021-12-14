@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { badRequest } = require('./errors/constants');
+const { notFound } = require('./errors/constants');
 
 const { PORT = 3000, BASE_PATH } = process.env;
 const app = express();
@@ -22,7 +22,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.use('*', (req, res) => {
-  res.status(badRequest).send({ message: 'Запрашиваемый ресурс не найден' });
+  res.status(notFound).send({ message: 'Запрашиваемый ресурс не найден' });
 });
 
 app.listen(PORT, () => {
