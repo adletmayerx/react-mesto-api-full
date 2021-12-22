@@ -20,9 +20,8 @@ module.exports.getUser = (req, res, next) => {
     })
     .catch((e) => {
       if (e.name === 'CastError') {
-        throw new ValidationError(e.message);
+        next(new ValidationError(e.message));
       }
-      next(e);
     })
     .catch(next);
 };
@@ -129,11 +128,6 @@ module.exports.login = (req, res, next) => {
           httpOnly: true,
         })
         .send({ message: 'Логин успешный' });
-    })
-    .catch((e) => {
-      if (e.code === 11000) {
-        throw new ConflictError('Введенный email уже используется');
-      }
     })
     .catch(next);
 };

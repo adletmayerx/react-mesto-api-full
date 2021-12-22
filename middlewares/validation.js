@@ -10,7 +10,7 @@ module.exports.userInfoValidation = celebrate({
 
 module.exports.userIdValidation = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().required().hex().length(24),
+    id: Joi.string().required().hex().length(24),
   }),
 });
 
@@ -59,7 +59,7 @@ module.exports.userAvatarValidation = celebrate({
 
 module.exports.cardIdValidation = celebrate({
   params: Joi.object().keys({
-    _id: Joi.string().required().hex().length(24),
+    id: Joi.string().required().hex().length(24),
   }),
 });
 

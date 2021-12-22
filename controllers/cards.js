@@ -1,7 +1,7 @@
 const Card = require('../models/cards');
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
-const ConflictError = require('../errors/ConflictError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -13,13 +13,13 @@ module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.id)
     .orFail(new NotFoundError('Карточка с указанным _id не найдена'))
     .then((card) => {
-      if (card.owner !== req.user_id) {
-        return next(new ConflictError('Нельзя удалить чужую карточку'));
+      if (!card.owner.equals(req.user_id)) {
+        return next(new ForbiddenError('Нельзя удалить чужую карточку'));
       }
       return card.remove()
         .then(() => res.send('Карточка удалена'))
         .catch(next);
-    });
+    }).catch(next);
 };
 
 module.exports.createCard = (req, res, next) => {
