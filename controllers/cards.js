@@ -1,6 +1,7 @@
 const Card = require('../models/cards');
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
+const ConflictError = require('../errors/ConflictError');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -9,18 +10,16 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.id)
+  Card.findById(req.params.id)
     .orFail(new NotFoundError('Карточка с указанным _id не найдена'))
     .then((card) => {
-      res.send({ data: card });
-    })
-    .catch((e) => {
-      if (e.name === 'CastError') {
-        throw new ValidationError(e.message);
+      if (card.owner !== req.user_id) {
+        return next(new ConflictError('Нельзя удалить чужую карточку'));
       }
-      next(e);
-    })
-    .catch(next);
+      return card.remove()
+        .then(() => res.send('Карточка удалена'))
+        .catch(next);
+    });
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -36,7 +35,7 @@ module.exports.createCard = (req, res, next) => {
 
 module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    req.params.id,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
@@ -55,7 +54,7 @@ module.exports.likeCard = (req, res, next) => {
 
 module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    req.params.id,
     { $pull: { likes: req.user._id } },
     { new: true },
   )

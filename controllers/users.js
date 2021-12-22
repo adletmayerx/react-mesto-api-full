@@ -27,30 +27,6 @@ module.exports.getUser = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
-
-  User.findOne({ email })
-    .then((user) => {
-      if (user) {
-        throw new ConflictError('Пользователь с таким email уже существует');
-      } else {
-        return bcrypt.hash(password, 10);
-      }
-    })
-    .then((hash) => {
-      User.create({
-        name, about, avatar, email, hash,
-      })
-        .then((user) => {
-          res.send({ data: user });
-        })
-        .catch(next);
-    });
-};
-
 module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
 
@@ -91,6 +67,33 @@ module.exports.updateAvatar = (req, res, next) => {
     .catch(next);
 };
 
+module.exports.createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        throw new ConflictError('Пользователь с таким email уже существует');
+      } else {
+        return bcrypt.hash(password, 10);
+      }
+    })
+    .then((hash) => {
+      User.create({
+        name, about, avatar, email, password: hash,
+      })
+        .then(() => {
+          res.status(200).send({
+            data: {
+              name, about, avatar, email,
+            },
+          });
+        })
+        .catch(next);
+    }).catch(next);
+};
+
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   const { JWT_SECRET = 'secret-jwt-key' } = process.env;
@@ -101,31 +104,36 @@ module.exports.login = (req, res, next) => {
         throw new NotAuthError('Неправильные логин или пароль');
       }
 
-      return bcrypt.compare(password, user.hash, (e, result) => {
-        if (e) {
-          throw new Error('Произошла ошибка');
-        }
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            throw new NotAuthError('Неверный пароль');
+          }
 
-        if (!result) {
-          throw new NotAuthError('Неверный пароль');
-        }
+          return user;
+        });
+    }).then((user) => {
+      const token = jsonwebtoken.sign(
+        {
+          _id: user._id,
+        },
+        JWT_SECRET,
+        {
+          expiresIn: '7d',
+        },
+      );
 
-        const token = jsonwebtoken.sign(
-          {
-            _id: user._id,
-          },
-          JWT_SECRET,
-          {
-            expiresIn: '7d',
-          },
-        );
-        return res
-          .cookie('jwt', token, {
-            maxAge: 3600000 * 24 * 7,
-            httpOnly: true,
-          })
-          .end();
-      });
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+        })
+        .send({ message: 'Логин успешный' });
+    })
+    .catch((e) => {
+      if (e.code === 11000) {
+        throw new ConflictError('Введенный email уже используется');
+      }
     })
     .catch(next);
 };
