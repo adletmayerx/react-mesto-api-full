@@ -21,6 +21,8 @@ module.exports.getUser = (req, res, next) => {
     .catch((e) => {
       if (e.name === 'CastError') {
         next(new ValidationError(e.message));
+      } else {
+        next(e);
       }
     })
     .catch(next);
@@ -28,7 +30,6 @@ module.exports.getUser = (req, res, next) => {
 
 module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
-
   User.findByIdAndUpdate(req.user._id, { name, about }, {
     new: true,
     runValidators: true,
@@ -39,9 +40,10 @@ module.exports.updateProfile = (req, res, next) => {
     })
     .catch((e) => {
       if (e.name === 'CastError') {
-        throw new ValidationError(e.message);
+        next(new ValidationError(e.message));
+      } else {
+        next(e);
       }
-      next(e);
     })
     .catch(next);
 };
@@ -59,9 +61,10 @@ module.exports.updateAvatar = (req, res, next) => {
     })
     .catch((e) => {
       if (e.name === 'CastError') {
-        throw new ValidationError(e.message);
+        next(new ValidationError(e.message));
+      } else {
+        next(e);
       }
-      next(e);
     })
     .catch(next);
 };

@@ -13,11 +13,11 @@ module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.id)
     .orFail(new NotFoundError('Карточка с указанным _id не найдена'))
     .then((card) => {
-      if (!card.owner.equals(req.user_id)) {
+      if (!card.owner.equals(req.user._id)) {
         return next(new ForbiddenError('Нельзя удалить чужую карточку'));
       }
       return card.remove()
-        .then(() => res.send('Карточка удалена'))
+        .then(() => res.send({ message: 'Карточка удалена' }))
         .catch(next);
     }).catch(next);
 };
