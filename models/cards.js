@@ -15,6 +15,12 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator(v) {
+        return /^(https?:\/\/w*\w)/.test(v);
+      },
+      message: 'Введена неверная ссылка',
+    },
   },
   likes: [{
     type: mongoose.Schema.Types.ObjectId,

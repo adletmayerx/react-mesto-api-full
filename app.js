@@ -1,29 +1,38 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { notFound } = require('./errors/constants');
+const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
+const { createUser, login } = require('./controllers/users');
+const auth = require('./middlewares/auth');
+const cors = require('./middlewares/cors');
+const errorHandler = require('./middlewares/errorHandler');
+const NotFoundError = require('./errors/NotFoundError');
+
+require('dotenv').config();
 
 const { PORT = 3000, BASE_PATH } = process.env;
 const app = express();
 
+app.use(cors);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-  req.user = {
-    _id: '61b35814273ed3f11753db54',
-  };
+app.use(cookieParser());
 
-  next();
-});
+app.post('/signin', login);
+app.post('/signup', createUser);
 
-mongoose.connect('mongodb://localhost:27017/mestodb', {});
+app.use(auth);
 
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.use('*', (req, res) => {
-  res.status(notFound).send({ message: 'Запрашиваемый ресурс не найден' });
+app.use('*', () => {
+  throw new NotFoundError('Запрашиваемый ресурс не найден');
 });
+app.use(errors());
+app.use(errorHandler);
+mongoose.connect('mongodb://localhost:27017/mestodb', {});
 
 app.listen(PORT, () => {
   console.log('Ссылка на сервер');
