@@ -1,0 +1,22 @@
+.profile__image-container {
+  position: relative;
+}
+
+.profile__image-container::after {
+  content: '';
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: #000;
+  opacity: .3;
+  transition: opacity .6s;
+  top: 0;
+  left: 0;
+}
+
+.profile__image-container:hover::after {
+  opacity: .8;
+  background-image: url(../../../images/avatar-edit-icon.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+}

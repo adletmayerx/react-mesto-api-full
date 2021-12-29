@@ -1,0 +1,4 @@
+.header__info {
+  display: flex;
+  justify-content: flex-start;
+}
