@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { CurrentUserContext } from '../../contexts/CurrentUserContext';
+import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 
 export default function Card({
   url,
@@ -13,6 +13,7 @@ export default function Card({
   onCardLike,
 }) {
   const currentUser = useContext(CurrentUserContext);
+  console.log(currentUser);
 
   const handleClick = () => {
     onCardClick(url, title);
@@ -24,17 +25,23 @@ export default function Card({
 
   const handleDeleteClick = () => {
     onRemoveButtonClick(id);
-  }
+  };
 
-  const isOwn = owner._id === currentUser._id;
+  const isOwn = owner === currentUser._id;
+
   const elementRemoveButtonClassName = `button element__remove-button ${
     isOwn ? "element__remove-button_visible" : "element__remove-button_hidden"
   }`;
 
-  const isLiked = likes.some((i) => i._id === currentUser._id);
+  const isLiked = likes.some((i) => {
+    console.log(i, currentUser._id);
+    return i === currentUser._id;
+    
+  });
   const elementLikeButtonClassName = `button element__like-button ${
     isLiked && "element__like-button_active"
   }`;
+
   return (
     <article className="element">
       <button

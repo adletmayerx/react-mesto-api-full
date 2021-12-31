@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Header from "./Header/Header";
 import Main from "./Main/Main";
 import Footer from "./Footer/Footer";
@@ -10,12 +10,12 @@ import PopupAddPlace from "./PopupAddPlace/PopupAddPlace";
 import PopupDeleteConfirm from "./PopupDeleteConfirm/PopupDeleteConfirm";
 import ImagePopup from "./PopupImage/PopupImage";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
-import { api } from "../utils/api";
+import api from "../utils/api";
 import ProtectedRoute from "./ProtectedRoute/ProtectedRoute";
 import PopupSuccess from "./PopupSuccess/PopupSuccess";
 import PopupFail from "./PopupFail/PopupFail";
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
-import * as auth from "../utils/auth.js";
+import auth from "../utils/auth.js";
 import { createBrowserHistory } from "history";
 
 function App() {
@@ -28,7 +28,7 @@ function App() {
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
   const [cards, setCards] = useState([]);
   const [selectedCard, setSelectCard] = useState({});
-  const [currentUser, setCurrentUser] = useState({ name: "", about: "" });
+  const [currentUser, setCurrentUser] = useState({});
   const [deletingCardId, setDeletingCardId] = useState("");
   const [buttonAvatarText, setButtonAvatarText] = useState("Сохранить");
   const [buttonProfileText, setButtonProfileText] = useState("Сохранить");
@@ -149,7 +149,7 @@ function App() {
   };
 
   const handleCardLike = (likes, id) => {
-    const isLiked = likes.some((i) => i._id === currentUser._id);
+    const isLiked = likes.some((i) => i === currentUser._id);
 
     if (isLiked) {
       api
@@ -177,27 +177,30 @@ function App() {
   };
 
   const handleSignOut = () => {
-    setLoggedIn(false);
-    localStorage.removeItem("jwt");
-    setCurrentUserEmail("");
-    navigate("/");
+    auth
+      .signOut()
+      .then(() => {
+        setLoggedIn(false);
+        setCurrentUserEmail("");
+        navigate("/");
+      })
+      .catch((e) => console.log(`${e} при выходе из приложения`));
   };
 
   const handleSignIn = (email, password) => {
-    auth
-      .authorize(email, password)
+    auth.authorise(email, password)
       .then((res) => {
         setLoggedIn(true);
+        console.log(res);
         setCurrentUserEmail(email);
+        setCurrentUser(res);
         navigate("/");
-        localStorage.setItem("jwt", res.token);
       })
-      .catch((err) => {
-        console.log(err);
-
-        return [];
+      .catch((e) => {
+        console.log(`${e} при авторизации`);
+        setIsFailPopupOpen(true);
       });
-  };
+  }
 
   const handleSignUp = (email, password) => {
     auth
@@ -235,6 +238,7 @@ function App() {
     api
       .getUserInfo()
       .then((res) => {
+        console.log(res);
         setCurrentUser(res);
       })
       .catch((err) => {
@@ -244,22 +248,24 @@ function App() {
       });
   }, []);
 
-  useEffect(() => {
-    if (localStorage.getItem("jwt")) {
-      auth
-        .checkToken(localStorage.getItem("jwt"))
-        .then((data) => {
+  const tokenCheck = useCallback(() => {
+    auth
+      .getContent()
+      .then((res) => {
+        if (res) {
           setLoggedIn(true);
+          setCurrentUserEmail(res.email);
           navigate("/");
-          setCurrentUserEmail(data.data.email);
-        })
-        .catch((err) => {
-          console.log(err);
+        } else {
+          setIsFailPopupOpen(true);
+        }
+      })
+      .catch((e) => console.log(`${e} при проверке токена`));
+  }, [navigate]);
 
-          return [];
-        });
-    }
-  }, [navigate, currentUserEmail]);
+  useEffect(() => {
+    tokenCheck();
+  }, [tokenCheck]);
 
   useEffect(() => {
     const handleEscClick = (e) => {
@@ -324,13 +330,7 @@ function App() {
 
         <Route
           path="*"
-          element={
-            loggedIn ? (
-              <Navigate to="/" />
-            ) : (
-              <Navigate to="/sign-in" />
-            )
-          }
+          element={loggedIn ? <Navigate to="/" /> : <Navigate to="/sign-in" />}
         />
       </Routes>
 

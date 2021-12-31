@@ -1,92 +1,81 @@
 class Api {
-  constructor(url) {
+  constructor( {url, headers} ) {
     this._url = url;
-    this._authorizationToken = '4bbad6bd-2811-470e-a5ed-e059873eda41';
+    this._headers = headers;
   }
 
   getUserInfo() {
-    return fetch(this._url +'/users/me', {
-      headers: {
-      authorization: this._authorizationToken
-    }})
-    .then(this.checkResult);
+    console.log('pytaus user info');
+    return fetch(this._url + '/users/me', {
+      headers: this._headers,
+      credentials: 'include',
+    })
+      .then(this.checkResult);
   }
 
   getInitialCards() {
-    return fetch(this._url +'/cards', {
-      headers: {
-      authorization: this._authorizationToken
-    }})
-    .then(this.checkResult);
+    return fetch(this._url + '/cards', {
+      headers: this._headers,
+      credentials: 'include',
+    })
+      .then(this.checkResult);
   }
 
-  editProfile(data){
-    return fetch(this._url +'/users/me', {
+  editProfile(data) {
+    return fetch(this._url + '/users/me', {
       method: 'PATCH',
-      headers: {
-        authorization: this._authorizationToken,
-        'Content-Type': 'application/json'
-      },
+      headers: this._headers,
+      credentials: 'include',
       body: JSON.stringify(data)
     })
-    .then(this.checkResult);
+      .then(this.checkResult);
   }
 
   addCard(item) {
-    return fetch(this._url +'/cards', {
+    return fetch(this._url + '/cards', {
       method: 'POST',
-      headers: {
-        authorization: this._authorizationToken,
-        'Content-Type': 'application/json'
-      },
+      headers: this._headers,
+      credentials: 'include',
       body: JSON.stringify(item)
     })
-    .then(this.checkResult);
+      .then(this.checkResult);
   }
 
   deleteCard(cardId) {
     return fetch(this._url + '/cards/' + cardId, {
       method: 'DELETE',
-      headers: {
-        authorization: this._authorizationToken,
-        'Content-Type': 'application/json'
-      },
+      headers: this._headers,
+      credentials: 'include',
     })
-    .then(this.checkResult);
+      .then(this.checkResult);
   }
 
   addLike(cardId) {
-    return fetch(this._url + '/cards/likes/' + cardId, {
+    return fetch(this._url + '/cards/' + cardId + '/likes', {
       method: 'PUT',
-      headers: {
-        authorization: this._authorizationToken,
-        'Content-Type': 'application/json'
-      },
+      headers: this._headers,
+      credentials: 'include',
     })
-    .then(this.checkResult);
+      .then(this.checkResult);
   }
 
   removeLike(cardId) {
-    return fetch(this._url + '/cards/likes/' + cardId, {
+    return fetch(this._url + '/cards/' + cardId + '/likes', {
       method: 'DELETE',
-      headers: {
-        authorization: this._authorizationToken,
-        'Content-Type': 'application/json'
-      },
+      headers: this._headers,
+      credentials: 'include',
     })
-    .then(this.checkResult);
+      .then(this.checkResult);
   }
 
-  editAvatar(avatar){
-    return fetch(this._url +'/users/me/avatar', {
+  editAvatar(avatar) {
+    return fetch(this._url + '/users/me/avatar', {
       method: 'PATCH',
-      headers: {
-        authorization: this._authorizationToken,
-        'Content-Type': 'application/json'
-      },
+      headers: this._headers,
+      credentials: 'include',
       body: JSON.stringify(avatar)
     })
-    .then(this.checkResult);
+      .then(this.checkResult);
   }
 
   checkResult = res => {
@@ -98,4 +87,13 @@ class Api {
   }
 }
 
-export const api = new Api('https://nomoreparties.co/v1/cohort-28');
+
+const api = new Api({
+  url: 'http://localhost:3001',
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
+});
+
+export default api;
