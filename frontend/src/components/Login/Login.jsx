@@ -1,42 +1,22 @@
-import React, { useState, useRef, useEffect } from "react";
-import FormValidator from "../../utils/FormValidator.js";
-import { selectors, loginFormSelector } from "../../utils/selectors.js";
+import React from "react";
+import { useFormWithValidation } from "../../hooks/useForm";
 
-export default function Login({ handleSignIn, currentPath }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const loginFormRef = useRef(null);
+export default function Login({ handleSignIn }) {
+  const { values, handleChange, errors, isValid } = useFormWithValidation();
 
-  const handleChangeEmail = (e) => {
-    setEmail(e.target.value);
-  };
+  // useEffect(() => {
+  //   resetForm({});
+  // }, [resetForm]);
 
-  const handleChangePassword = (e) => {
-    setPassword(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
-    if (email || password) {
-      handleSignIn(email, password);
-      loginFormRef.current.reset();
-    }
-  };
-
-  useEffect(() => {
-    const loginFormValidator = new FormValidator(selectors, loginFormSelector);
-    const handleLoginValidation = () => {
-      loginFormValidator.enableValidation();
-    };
-
-    handleLoginValidation();
-  }, []);
+    handleSignIn(values);
+  }
 
   return (
     <div className="login">
       <h2 className="title login__title">Вход</h2>
       <form
-        ref={loginFormRef}
         name="login-form"
         className="form login__form"
         onSubmit={handleSubmit}
@@ -48,27 +28,37 @@ export default function Login({ handleSignIn, currentPath }) {
           type="email"
           className="form__input login__input input input_type_email"
           placeholder="Email"
-          value={email}
-          onChange={handleChangeEmail}
+          value={values.email || ""}
+          onChange={handleChange}
           minLength="4"
           maxLength="40"
           required
         />
-        <span className="form__input-error email-input-error"></span>
+        <span className="form__input-error email-input-error">
+          {errors.email}
+        </span>
         <input
           name="password"
           id="password-input"
           type="password"
           className="form__input login__input input input_type_password"
           placeholder="Пароль"
-          value={password}
-          onChange={handleChangePassword}
+          value={values.password || ""}
+          onChange={handleChange}
           minLength="2"
           maxLength="40"
           required
         />
-        <span className="form__input-error password-input-error"></span>
-        <button type="submit" className="login__submit-button form__submit">
+        <span className="form__input-error password-input-error">
+          {errors.password}
+        </span>
+        <button
+          type="submit"
+          disabled={!isValid}
+          className={`login__submit-button form__submit ${
+            !isValid && "popup__submit-button_inactive"
+          }`}
+        >
           Войти
         </button>
       </form>

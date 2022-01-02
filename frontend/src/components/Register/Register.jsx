@@ -1,43 +1,23 @@
-import React, { useState, useRef, useEffect } from "react";
-import FormValidator from "../../utils/FormValidator.js";
-import { selectors, registerFormSelector } from "../../utils/selectors.js";
+import React from "react";
 import { Link } from "react-router-dom";
+import { useFormWithValidation } from "../../hooks/useForm";
 
 export default function Register({ handleSignUp, currentPath }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const registerFormRef = useRef(null);
+  const { values, handleChange, errors, isValid } = useFormWithValidation();
 
-  const handleChangeEmail = (e) => {
-    setEmail(e.target.value);
-  };
+  // useEffect(() => {
+  //   resetForm({});
+  // }, [resetForm]);
 
-  const handleChangePassword = (e) => {
-    setPassword(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
-    if (email && password) {
-      handleSignUp(email, password);
-      registerFormRef.current.reset();
-    }
-  };
-
-  useEffect(() => {
-    const registerFormValidator = new FormValidator(selectors, registerFormSelector);
-    const handleRegisterValidation = () => {
-      registerFormValidator.enableValidation();
-    };
-
-    handleRegisterValidation();
-  }, []);
+    handleSignUp(values);
+  }
 
   return (
     <div className="register">
       <h2 className="title register__title">Регистрация</h2>
       <form
-        ref={registerFormRef}
         name="register-form"
         className="form register__form"
         onSubmit={handleSubmit}
@@ -49,27 +29,37 @@ export default function Register({ handleSignUp, currentPath }) {
           type="email"
           className="register__input form__input input input_type_email"
           placeholder="Email"
-          value={email}
-          onChange={handleChangeEmail}
+          value={values.email || ""}
+          onChange={handleChange}
           minLength="4"
           maxLength="40"
           required
         />
-        <span className="form__input-error email-input-error"></span>
+        <span className="form__input-error email-input-error">
+          {errors.email}
+        </span>
         <input
           name="password"
           id="password-input"
           type="password"
           className="register__input form__input input input_type_password"
           placeholder="Пароль"
-          value={password}
-          onChange={handleChangePassword}
+          value={values.password || ""}
+          onChange={handleChange}
           minLength="2"
           maxLength="40"
           required
         />
-        <span className="form__input-error password-input-error"></span>
-        <button type="submit" className="register__submit-button form__submit">
+        <span className="form__input-error password-input-error">
+          {errors.password}
+        </span>
+        <button
+          disabled={!isValid}
+          type="submit"
+          className={`register__submit-button form__submit ${
+            !isValid && "popup__submit-button_inactive"
+          }`}
+        >
           Зарегистрироваться
         </button>
       </form>

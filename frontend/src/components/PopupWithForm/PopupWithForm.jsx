@@ -8,6 +8,7 @@ export default function PopupWithForm({
   buttonValue,
   children,
   onSubmit,
+  isDisabled = false,
 }) {
   const formRef = useRef(null);
 
@@ -33,7 +34,10 @@ export default function PopupWithForm({
           {children}
           <button
             type="submit"
-            className="popup__save-button popup__submit-button form__submit"
+            className={`popup__save-button popup__submit-button form__submit ${
+              isDisabled && "popup__submit-button_inactive"
+            }`}
+            disabled={isDisabled}
           >
             {buttonValue}
           </button>

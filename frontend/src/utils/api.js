@@ -5,7 +5,6 @@ class Api {
   }
 
   getUserInfo() {
-    console.log('pytaus user info');
     return fetch(this._url + '/users/me', {
       headers: this._headers,
       credentials: 'include',
@@ -21,22 +20,23 @@ class Api {
       .then(this.checkResult);
   }
 
-  editProfile(data) {
+  editProfile(name, about) {
     return fetch(this._url + '/users/me', {
       method: 'PATCH',
       headers: this._headers,
       credentials: 'include',
-      body: JSON.stringify(data)
+      body: JSON.stringify({name, about})
     })
       .then(this.checkResult);
   }
 
-  addCard(item) {
+  addCard(title, link) {
+    console.log(title, link);
     return fetch(this._url + '/cards', {
       method: 'POST',
       headers: this._headers,
       credentials: 'include',
-      body: JSON.stringify(item)
+      body: JSON.stringify({name: title, link: link})
     })
       .then(this.checkResult);
   }
@@ -73,7 +73,7 @@ class Api {
       method: 'PATCH',
       headers: this._headers,
       credentials: 'include',
-      body: JSON.stringify(avatar)
+      body: JSON.stringify({avatar})
     })
       .then(this.checkResult);
   }

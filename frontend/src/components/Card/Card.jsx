@@ -13,8 +13,6 @@ export default function Card({
   onCardLike,
 }) {
   const currentUser = useContext(CurrentUserContext);
-  console.log(currentUser);
-
   const handleClick = () => {
     onCardClick(url, title);
   };
@@ -34,7 +32,6 @@ export default function Card({
   }`;
 
   const isLiked = likes.some((i) => {
-    console.log(i, currentUser._id);
     return i === currentUser._id;
     
   });

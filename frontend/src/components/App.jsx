@@ -82,7 +82,7 @@ function App() {
     }
   };
 
-  const handleUpdateUser = (name, about) => {
+  const handleUpdateUser = ({ name, about }) => {
     setButtonProfileText("Сохранение...");
     api
       .editProfile(name, about)
@@ -98,7 +98,7 @@ function App() {
       });
   };
 
-  const handleUpdateAvatar = (avatar) => {
+  const handleUpdateAvatar = ({ avatar }) => {
     setButtonAvatarText("Сохранение...");
     api
       .editAvatar(avatar)
@@ -114,10 +114,10 @@ function App() {
       .finally(() => setButtonAvatarText("Сохранить"));
   };
 
-  const handleAddPlaceSubmit = (name, link) => {
+  const handleAddPlaceSubmit = ({ title, link }) => {
     setButtonAddPlaceText("Сохранение...");
     api
-      .addCard(name, link)
+      .addCard(title, link)
       .then((newCard) => setCards([newCard, ...cards]))
       .then(() => {
         closeAllPopups();
@@ -187,8 +187,9 @@ function App() {
       .catch((e) => console.log(`${e} при выходе из приложения`));
   };
 
-  const handleSignIn = (email, password) => {
-    auth.authorise(email, password)
+  const handleSignIn = ({ email, password }) => {
+    auth
+      .authorise(email, password)
       .then((res) => {
         setLoggedIn(true);
         console.log(res);
@@ -200,9 +201,9 @@ function App() {
         console.log(`${e} при авторизации`);
         setIsFailPopupOpen(true);
       });
-  }
+  };
 
-  const handleSignUp = (email, password) => {
+  const handleSignUp = ({ email, password }) => {
     auth
       .register(email, password)
       .then((res) => {
@@ -222,31 +223,17 @@ function App() {
   };
 
   useEffect(() => {
-    api
-      .getInitialCards()
-      .then((initialCards) => {
-        setCards(initialCards);
-      })
-      .catch((err) => {
-        console.log(err);
+    if (loggedIn) {
+      const promises = [api.getUserInfo(), api.getInitialCards()];
 
-        return [];
-      });
-  }, []);
-
-  useEffect(() => {
-    api
-      .getUserInfo()
-      .then((res) => {
-        console.log(res);
-        setCurrentUser(res);
-      })
-      .catch((err) => {
-        console.log(err);
-
-        return [];
-      });
-  }, []);
+      Promise.all(promises)
+        .then(([userData, initialCards]) => {
+          setCurrentUser(userData);
+          setCards(initialCards);
+        })
+        .catch((result) => console.log(`${result} при загрузке данных`));
+    }
+  }, [loggedIn]);
 
   const tokenCheck = useCallback(() => {
     auth

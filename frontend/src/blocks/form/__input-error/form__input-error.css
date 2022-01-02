@@ -6,4 +6,5 @@
   color: #FF0000;
   opacity: 0;
   transition: opacity .3s;
+  opacity: 1;
 }

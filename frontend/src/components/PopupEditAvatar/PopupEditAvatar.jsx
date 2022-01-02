@@ -1,35 +1,25 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect } from "react";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
-import FormValidator from "../../utils/FormValidator.js";
-import { selectors, editAvatarFormSelector } from "../../utils/selectors.js";
+import { useFormWithValidation } from "../../hooks/useForm";
 
-export default function PopupEditAvatar({ isOpen, onClose, onUpdateAvatar, buttonText }) {
-  const inputRef = useRef();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    onUpdateAvatar({
-      avatar: inputRef.current.value
-    });
-  }
+export default function PopupEditAvatar({
+  isOpen,
+  onClose,
+  onUpdateAvatar,
+  buttonText,
+}) {
+  const { values, handleChange, resetForm, errors, isValid } =
+    useFormWithValidation();
 
   useEffect(() => {
-    const editAvatarFormValidator = new FormValidator(
-      selectors,
-      editAvatarFormSelector
-    );
-    const handleEditAvatarValidation = () => {
-      editAvatarFormValidator.enableValidation();
-    };
+    resetForm({});
+  }, [isOpen, resetForm]);
 
-    window.addEventListener("load", handleEditAvatarValidation);
+  function handleSubmit(e) {
+    e.preventDefault();
+    onUpdateAvatar(values);
+  }
 
-    return () => {
-      window.removeEventListener("load", handleEditAvatarValidation);
-    };
-  }, []);
-  
   return (
     <PopupWithForm
       title={"Обновить аватар"}
@@ -38,6 +28,7 @@ export default function PopupEditAvatar({ isOpen, onClose, onUpdateAvatar, butto
       onClose={onClose}
       buttonValue={buttonText}
       onSubmit={handleSubmit}
+      isDisabled={!isValid}
     >
       <input
         name="avatar"
@@ -45,10 +36,13 @@ export default function PopupEditAvatar({ isOpen, onClose, onUpdateAvatar, butto
         className="popup__input popup__input_type_avatar form__input"
         id="avatar-input"
         placeholder="Обновить аватар"
-        ref={inputRef}
+        value={values.avatar || ""}
+        onChange={handleChange}
         required
       />
-      <span className="form__input-error avatar-input-error"></span>
+      <span className="form__input-error avatar-input-error">
+        {errors.avatar || ""}
+      </span>
     </PopupWithForm>
   );
 }

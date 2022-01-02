@@ -1,7 +1,5 @@
-import React, { useEffect } from "react";
+import React from "react";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
-import FormValidator from "../../utils/FormValidator.js";
-import { selectors, editProfileFormSelector } from "../../utils/selectors.js";
 
 export default function PopupDeleteConfirm({
   isOpen,
@@ -14,22 +12,6 @@ export default function PopupDeleteConfirm({
 
     onDelete();
   };
-
-  useEffect(() => {
-    const editProfileFormValidator = new FormValidator(
-      selectors,
-      editProfileFormSelector
-    );
-    const handleEditProfileValidation = () => {
-      editProfileFormValidator.enableValidation();
-    };
-
-    window.addEventListener("load", handleEditProfileValidation);
-
-    return () => {
-      window.removeEventListener("load", handleEditProfileValidation);
-    };
-  }, []);
 
   return (
     <PopupWithForm

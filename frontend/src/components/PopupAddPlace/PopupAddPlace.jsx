@@ -1,42 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
-import FormValidator from "../../utils/FormValidator.js";
-import { selectors, addPlaceFormSelector } from "../../utils/selectors.js";
+import { useFormWithValidation } from "../../hooks/useForm";
 
-export default function PopupAddPlace({ isOpen, onClose, onAddPlace, buttonText }) {
-  const [title, setTitle] = useState('');
-  const [link, setLink] = useState('');
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    onAddPlace({
-      name: title,
-      link
-    });
-  }
+export default function PopupAddPlace({
+  isOpen,
+  onClose,
+  onAddPlace,
+  buttonText,
+}) {
+  const { values, handleChange, resetForm, errors, isValid } =
+    useFormWithValidation();
 
   useEffect(() => {
-    setTitle('');
-    setLink('');
-}, [isOpen]);
+    resetForm();
+  }, [isOpen, resetForm]);
 
-useEffect(() => {
-  const addPlaceFormValidator = new FormValidator(
-    selectors,
-    addPlaceFormSelector
-  );
-  const handleAddPlaceValidation = () => {
-    addPlaceFormValidator.enableValidation();
-  };
+  function handleSubmit(e) {
+    e.preventDefault();
+    onAddPlace(values);
+  }
 
-  window.addEventListener("load", handleAddPlaceValidation);
-
-  return () => {
-    window.removeEventListener("load", handleAddPlaceValidation);
-  };
-}, []);
-  
   return (
     <PopupWithForm
       title={"Новое место"}
@@ -45,6 +28,7 @@ useEffect(() => {
       onClose={onClose}
       buttonValue={buttonText}
       onSubmit={handleSubmit}
+      isDisabled={!isValid}
     >
       <input
         name="title"
@@ -54,22 +38,26 @@ useEffect(() => {
         placeholder="Название"
         minLength="2"
         maxLength="30"
-        value={title}
-        onChange={e => setTitle(e.target.value)}
+        value={values.title}
+        onChange={handleChange}
         required
       />
-      <span className="form__input-error title-input-error"></span>
+      <span className="form__input-error title-input-error">
+        {errors.title || ""}
+      </span>
       <input
         name="link"
         type="url"
         className="popup__input popup__input_type_link form__input"
         id="link-input"
         placeholder="Ссылка на картинку"
-        value={link}
-        onChange={e => setLink(e.target.value)}
+        value={values.link}
+        onChange={handleChange}
         required
       />
-      <span className="form__input-error link-input-error"></span>
+      <span className="form__input-error link-input-error">
+        {errors.link || ""}
+      </span>
     </PopupWithForm>
   );
 }

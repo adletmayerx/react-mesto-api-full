@@ -1,8 +1,7 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
-import FormValidator from "../../utils/FormValidator.js";
-import { selectors, editProfileFormSelector } from "../../utils/selectors.js";
+import { useFormWithValidation } from "../../hooks/useForm";
 
 export default function PopupEditProfile({
   isOpen,
@@ -11,35 +10,20 @@ export default function PopupEditProfile({
   buttonText,
 }) {
   const currentUser = useContext(CurrentUserContext);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const { values, handleChange, resetForm, errors, isValid } =
+    useFormWithValidation();
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    onUpdateUser({ name, about: description });
+    onUpdateUser(values);
   };
 
   useEffect(() => {
-    const editProfileFormValidator = new FormValidator(
-      selectors,
-      editProfileFormSelector
-    );
-    const handleEditProfileValidation = () => {
-      editProfileFormValidator.enableValidation();
-    };
-
-    window.addEventListener("load", handleEditProfileValidation);
-
-    return () => {
-      window.removeEventListener("load", handleEditProfileValidation);
-    };
-  }, []);
-
-  useEffect(() => {
-    setName(currentUser.name);
-    setDescription(currentUser.about);
-  }, [currentUser, isOpen]);
+    if (currentUser) {
+      resetForm(currentUser, {}, true);
+    }
+  }, [currentUser, isOpen, resetForm]);
 
   return (
     <PopupWithForm
@@ -49,6 +33,7 @@ export default function PopupEditProfile({
       onClose={onClose}
       buttonValue={buttonText}
       onSubmit={handleSubmit}
+      isDisabled={!isValid}
     >
       <input
         name="name"
@@ -59,10 +44,12 @@ export default function PopupEditProfile({
         minLength="2"
         maxLength="40"
         placeholder="Ваше имя"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        value={values.name || ""}
+        onChange={handleChange}
       />
-      <span className="form__input-error name-input-error"></span>
+      <span className="form__input-error name-input-error">
+        {errors.name || ""}
+      </span>
       <input
         name="about"
         type="text"
@@ -72,10 +59,12 @@ export default function PopupEditProfile({
         minLength="2"
         maxLength="200"
         placeholder="Расскажите о себе"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
+        value={values.about || ""}
+        onChange={handleChange}
       />
-      <span className="form__input-error about-input-error"></span>
+      <span className="form__input-error about-input-error">
+        {errors.about || ""}
+      </span>
     </PopupWithForm>
   );
 }
