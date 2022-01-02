@@ -8,5 +8,5 @@
 ## Запуск проекта
 
 IP: 51.250.25.20
-Домен frontend: asadrtdinov.nomoredomains.rocks
-Домен backend: api.artursadrtdinov.nomoredomains.rocks
+Домен frontend: <asadrtdinov.nomoredomains.rocks>
+Домен backend: <api.artursadrtdinov.nomoredomains.rocks>
