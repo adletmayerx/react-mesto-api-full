@@ -50,7 +50,6 @@ class Auth {
       method: "DELETE",
       credentials: "include",
     }).then((result) => {
-      console.log(result);
       this._getResponseData(result)
     });
   };

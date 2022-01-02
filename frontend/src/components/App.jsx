@@ -192,7 +192,6 @@ function App() {
       .authorise(email, password)
       .then((res) => {
         setLoggedIn(true);
-        console.log(res);
         setCurrentUserEmail(email);
         setCurrentUser(res);
         navigate("/");
