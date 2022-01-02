@@ -1,5 +1,5 @@
 class Auth {
-  constructor( {url, headers} ) {
+  constructor({ url, headers }) {
     this._url = url;
     this._headers = headers;
   }
@@ -49,12 +49,15 @@ class Auth {
     return fetch(`${this._url}/signout`, {
       method: "DELETE",
       credentials: "include",
-    }).then((result) => this._getResponseData(result));
+    }).then((result) => {
+      console.log(result);
+      this._getResponseData(result)
+    });
   };
 }
 
 const auth = new Auth({
-  url: 'http://localhost:3001',
+  url: 'https://api.artursadrtdinov.nomoredomains.rocks',
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',

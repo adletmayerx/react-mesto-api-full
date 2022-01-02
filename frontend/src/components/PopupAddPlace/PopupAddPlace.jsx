@@ -38,7 +38,7 @@ export default function PopupAddPlace({
         placeholder="Название"
         minLength="2"
         maxLength="30"
-        value={values.title}
+        value={values.title || ""}
         onChange={handleChange}
         required
       />
@@ -51,7 +51,7 @@ export default function PopupAddPlace({
         className="popup__input popup__input_type_link form__input"
         id="link-input"
         placeholder="Ссылка на картинку"
-        value={values.link}
+        value={values.link || ""}
         onChange={handleChange}
         required
       />

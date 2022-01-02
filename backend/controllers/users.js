@@ -16,7 +16,7 @@ module.exports.getUser = (req, res, next) => {
   User.findById(req.params.id)
     .orFail(new NotFoundError('Пользователь по указанному _id не найден'))
     .then((user) => {
-      res.send({ data: user });
+      res.send(user);
     })
     .catch((e) => {
       if (e.name === 'CastError') {
@@ -125,11 +125,12 @@ module.exports.login = (req, res, next) => {
         },
       );
 
-      res
-        .cookie('jwt', token, {
-          maxAge: 3600000 * 24 * 7,
-          httpOnly: true,
-        })
+      res.cookie('jwt', token, {
+        httpOnly: true,
+        maxAge: 3600000 * 24 * 7,
+        sameSite: 'none',
+        secure: true,
+      })
         .send({ message: 'Логин успешный' });
     })
     .catch(next);
@@ -138,7 +139,11 @@ module.exports.login = (req, res, next) => {
 module.exports.getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
-      res.send({ data: user });
+      res.send(user);
     })
     .catch(next);
+};
+
+module.exports.signOut = (req, res) => {
+  res.cookie('jwt', { maxAge: 0 }).send({ message: 'cookies deleted' });
 };

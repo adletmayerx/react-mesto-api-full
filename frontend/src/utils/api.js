@@ -89,7 +89,7 @@ class Api {
 
 
 const api = new Api({
-  url: 'http://localhost:3001',
+  url: 'https://api.artursadrtdinov.nomoredomains.rocks',
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
