@@ -4,6 +4,14 @@
 
 `/backend` — папка с файлами frontend  
 `/frontend` — папка с файлами backend
+
+## Технологии 
+
+* REact
+* Node.JS
+* expressJS
+* nginx
+* HTML5 & CSS3
   
 ## Запуск проекта
 
