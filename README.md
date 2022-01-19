@@ -7,7 +7,7 @@
 
 ## Технологии 
 
-* REact
+* React
 * Node.JS
 * expressJS
 * nginx
