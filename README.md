@@ -18,6 +18,7 @@
 * HTML5 & CSS3
   
 ## Запуск проекта
+
 ### backend:
 npm run start - старт сервера
 npm run dev - dev режим
@@ -29,5 +30,5 @@ npm run start - старт проекта на localhost:3000
 ## Ссылки
 
 IP: 51.250.25.20
-Домен frontend: <https://asadrtdinov.nomoredomains.rocks>
-Домен backend: <https://api.artursadrtdinov.nomoredomains.rocks>
+### Домен frontend: <https://asadrtdinov.nomoredomains.rocks>
+### Домен backend: <https://api.artursadrtdinov.nomoredomains.rocks>
