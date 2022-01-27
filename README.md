@@ -20,11 +20,11 @@
 ## Запуск проекта
 
 ### backend:
-npm run start - старт сервера
+npm run start - старт сервера </br>
 npm run dev - dev режим
 
 ### frontend:
-npm run build - сборка проекта
+npm run build - сборка проекта </br>
 npm run start - старт проекта на localhost:3000
 
 ## Ссылки
