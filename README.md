@@ -18,12 +18,14 @@
 * HTML5 & CSS3
   
 ## Запуск проекта
-backend:
+### backend:
 npm run start - старт сервера
 npm run dev - dev режим
-frontend:
+
+### frontend:
 npm run build - сборка проекта
 npm run start - старт проекта на localhost:3000
+
 ## Ссылки
 
 IP: 51.250.25.20
